@@ -2,6 +2,7 @@ import { API_URL, KEY } from "./config.js";
 import { RES_PER_PAGE } from "./config.js";
 //import { getJSON, sendJSON } from "./helpers.js";
 import { AJAX } from "./helpers.js";
+import { TIMEOUT_ERROR } from "./config.js";
 
 export const state = {
   recipe: {},
@@ -122,7 +123,6 @@ const clearBookmarks = function () {
 
 export const uploadRecipe = async function (newRecipe) {
   try {
-    console.log(Object.entries(newRecipe));
     const ingredients = Object.entries(newRecipe)
       .filter((entry) => entry[0].startsWith("ingredient") && entry[1] !== "")
       .map((ing) => {
@@ -130,7 +130,8 @@ export const uploadRecipe = async function (newRecipe) {
         const ingArr = ing[1].split(",").map((el) => el.trim());
         if (ingArr.length !== 3)
           throw new Error(
-            "Wrong ingredient format! Please use the correct format! :)"
+            `Wrong ingredient format! Please use the correct format! :) <br><br>
+            The quantity, unit and description should be separated by a comma: Quantity, Unit, Description`
           );
 
         const [quantity, unit, description] = ingArr;
@@ -151,8 +152,11 @@ export const uploadRecipe = async function (newRecipe) {
     state.recipe = createRecipeObject(data);
     addBookmark(state.recipe);
   } catch (err) {
+    document.querySelector("body").addEventListener("click", function () {
+      document.location.reload();
+    });
     throw err;
   }
 };
 
-clearBookmarks();
+//document.location.reload();
